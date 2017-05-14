@@ -14,7 +14,7 @@ const app = express();
 // Windows and Linux users; You should have retained the user/pw from the pre-work for this course.
 // Your url may require that it's composed of additional information including user and password
 // const conString = 'postgres://USER:PASSWORD@HOST:PORT/DBNAME';
-const conString = 'postgres://localhost:5432';
+const conString = 'postgres://postgres:miyagi@localhost:5432/simpsons';
 
 // REVIEW: Pass the conString to pg, which creates a new client object
 const client = new pg.Client(conString);
@@ -31,14 +31,14 @@ app.use(express.static('./public'));
 
 // REVIEW: Routes for requesting HTML resources
 
-// NOTE:
+// NOTE: when the request is just a slash '/' route to index.html
 app.get('/', function(request, response) {
-  response.sendFile('index.html', {root: '.'});
+  response.sendFile('index.html', {root: './public'});
 });
 
-// NOTE:
+// NOTE: when the request is '/new' route to new.html
 app.get('/new', function(request, response) {
-  response.sendFile('new.html', {root: '.'});
+  response.sendFile('new.html', {root: './public'});
 });
 
 
@@ -55,7 +55,7 @@ app.get('/articles', function(request, response) {
   })
 });
 
-// NOTE:
+// NOTE: When the user creates a new article using the form, the server creates a new record in the articles table
 app.post('/articles', function(request, response) {
   client.query(
     `INSERT INTO
@@ -72,14 +72,14 @@ app.post('/articles', function(request, response) {
     ]
   )
   .then(function() {
-    response.send('insert complete')
+    response.send('insert complete');
   })
   .catch(function(err) {
     console.error(err);
   });
 });
 
-// NOTE:
+// NOTE: When the user changes an exiting article using the form, the server updates that record in the articles table
 app.put('/articles/:id', function(request, response) {
   client.query(
     `UPDATE articles
@@ -105,7 +105,7 @@ app.put('/articles/:id', function(request, response) {
   });
 });
 
-// NOTE:
+// NOTE: When the user sends this request, the server will delete row from the article table with that id
 app.delete('/articles/:id', function(request, response) {
   client.query(
     `DELETE FROM articles WHERE article_id=$1;`,
@@ -119,7 +119,7 @@ app.delete('/articles/:id', function(request, response) {
   });
 });
 
-// NOTE:
+// NOTE: When the user sends this request, the server will delete all rows in the article table
 app.delete('/articles', function(request, response) {
   client.query(
     'DELETE FROM articles;'
@@ -132,7 +132,7 @@ app.delete('/articles', function(request, response) {
   });
 });
 
-// NOTE:
+// NOTE: Create the articles table (if not existing) and add the data to the articles table
 loadDB();
 
 app.listen(PORT, function() {
@@ -142,7 +142,7 @@ app.listen(PORT, function() {
 
 //////// ** DATABASE LOADER ** ////////
 ////////////////////////////////////////
-// NOTE:
+// NOTE: The server takes the data from the hackerIpsum.json file, parses it, and adds to the articles table.
 function loadArticles() {
   client.query('SELECT COUNT(*) FROM articles')
   .then(result => {
@@ -162,7 +162,7 @@ function loadArticles() {
   })
 }
 
-// NOTE:
+// NOTE: The server checks if the articles table exists in the database. If it does not exist, it will create a new table. Then it will add all the data to the articles table.
 function loadDB() {
   client.query(`
     CREATE TABLE IF NOT EXISTS articles (
