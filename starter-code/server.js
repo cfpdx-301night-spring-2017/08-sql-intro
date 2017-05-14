@@ -1,6 +1,6 @@
 'use strict';
 
-// TODO: Install and require the Node packages into your project, and ensure that it's now a new dependency in your package.json. DO NOT FORGET to run 'npm i'
+// TODO: Install and require the Node packages into your project, and ensure that it's now a new dependency in your package.json. DO NOT FORGET to run 'npm install'
 const pg = require('pg'); // 3rd party package
 const fs = require('fs'); // native Node
 const express = require('express'); // 3rd party package
@@ -14,7 +14,7 @@ const app = express();
 // Windows and Linux users; You should have retained the user/pw from the pre-work for this course.
 // Your url may require that it's composed of additional information including user and password
 // const conString = 'postgres://USER:PASSWORD@HOST:PORT/DBNAME';
-const conString = 'postgres://localhost:5432';
+const conString = 'postgres://postgres:2006648@localhost:5432/demo';
 
 // REVIEW: Pass the conString to pg, which creates a new client object
 const client = new pg.Client(conString);
@@ -31,12 +31,12 @@ app.use(express.static('./public'));
 
 // REVIEW: Routes for requesting HTML resources
 
-// NOTE:
+// NOTE:When the user enters a '/' after the address it gets you to the index.html file
 app.get('/', function(request, response) {
   response.sendFile('index.html', {root: '.'});
 });
 
-// NOTE:
+// NOTE: When the user enters a '/new' after the address it gets you the new.html file
 app.get('/new', function(request, response) {
   response.sendFile('new.html', {root: '.'});
 });
@@ -55,7 +55,7 @@ app.get('/articles', function(request, response) {
   })
 });
 
-// NOTE:
+// NOTE:-The User sends an AJAX request to insert new rows in the database with the values from the new.html form. It passes the function for SQL to INSERT into the table. This is if the Articles api doesn't have this information. This is a CRUD "create" operation
 app.post('/articles', function(request, response) {
   client.query(
     `INSERT INTO
@@ -79,7 +79,7 @@ app.post('/articles', function(request, response) {
   });
 });
 
-// NOTE:
+// NOTE:-The User sends an AJAX request to update the values in the database tables from new.html, it will update the api. This it the "update" method from CRUD.
 app.put('/articles/:id', function(request, response) {
   client.query(
     `UPDATE articles
@@ -105,7 +105,7 @@ app.put('/articles/:id', function(request, response) {
   });
 });
 
-// NOTE:
+// NOTE:-The User sends an AJAX request to delete from the database of articles, where the article id is the specified id. This is a "Delete" in the CRUD method.
 app.delete('/articles/:id', function(request, response) {
   client.query(
     `DELETE FROM articles WHERE article_id=$1;`,
@@ -119,7 +119,7 @@ app.delete('/articles/:id', function(request, response) {
   });
 });
 
-// NOTE:
+// NOTE:-The User sends an AJAX request to delete from the database of articles, this deletes all articles. This is a "Delete" in the CRUD method.
 app.delete('/articles', function(request, response) {
   client.query(
     'DELETE FROM articles;'
@@ -132,7 +132,7 @@ app.delete('/articles', function(request, response) {
   });
 });
 
-// NOTE:
+// NOTE:-Loads the database and listens on a port.
 loadDB();
 
 app.listen(PORT, function() {
@@ -142,7 +142,7 @@ app.listen(PORT, function() {
 
 //////// ** DATABASE LOADER ** ////////
 ////////////////////////////////////////
-// NOTE:
+// NOTE:-This function updates an api table, with the data from a JSON file, using parse. It assigns table header vales and uses the api calls on lines 153-156 to set the data from the JSON file to the appropriate rows.
 function loadArticles() {
   client.query('SELECT COUNT(*) FROM articles')
   .then(result => {
@@ -162,7 +162,7 @@ function loadArticles() {
   })
 }
 
-// NOTE:
+// NOTE:-This function creates an api table if it does not exist. It uses an api query to set the values of the table to the specific values that we want to use in the future.
 function loadDB() {
   client.query(`
     CREATE TABLE IF NOT EXISTS articles (
